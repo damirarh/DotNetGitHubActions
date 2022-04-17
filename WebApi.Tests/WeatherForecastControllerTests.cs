@@ -14,6 +14,6 @@ public class WeatherForecastControllerTests
 
         var forecasts = controller.Get();
 
-        forecasts.Should().HaveCount(5);
+        forecasts.Should().HaveCount(6);
     }
 }
