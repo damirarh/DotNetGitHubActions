@@ -49,7 +49,15 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Test
-        run: dotnet test
+        run: dotnet test --logger trx
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests
+          path: WebApi.Tests/TestResults/*.trx
+          reporter: dotnet-trx
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
