@@ -56,7 +56,13 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Test
-        run: dotnet test --logger trx
+        run: dotnet test --logger trx --collect:"XPlat Code Coverage"
+
+      - name: Restore global tools
+        run: dotnet tool restore
+
+      - name: Report Generator
+        run: dotnet reportgenerator -reports:**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
 
       - name: Test Report
         uses: dorny/test-reporter@v1
@@ -65,6 +71,16 @@ jobs:
           name: Tests
           path: WebApi.Tests/TestResults/*.trx
           reporter: dotnet-trx
+
+      - name: Create check run for code coverage
+        uses: LouisBrunner/checks-action@v1.2.0
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Code coverage
+          conclusion: ${{ job.status }}
+          output: '{"summary":"Code coverage"}'
+          output_text_description_file: coverage/Summary.md
 
       - name: dotnet publish
         run: dotnet publish ./WebApi/WebApi.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
