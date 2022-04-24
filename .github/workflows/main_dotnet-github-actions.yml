@@ -64,6 +64,12 @@ jobs:
       - name: Report Generator
         run: dotnet reportgenerator -reports:**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
 
+      - name: Find code coverage files
+        id: find-files
+        uses: ./GitHubAction
+        with:
+          pattern: "**/coverage.cobertura.xml"
+
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()
@@ -79,7 +85,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Code coverage
           conclusion: ${{ job.status }}
-          output: '{"summary":"Code coverage"}'
+          output: '{"summary":"${{ steps.find-files.outputs.files }}"}'
           output_text_description_file: coverage/Summary.md
 
       - name: dotnet publish
